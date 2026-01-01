@@ -1,0 +1,30 @@
+{
+  "name": "checkout-payevo",
+  "version": "1.0.0",
+  "description": "integração Payevo API via proxy reverso",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "checkout",
+    "pix",
+    "payevo",
+    "pagamento",
+    "aaa"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
