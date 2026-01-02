@@ -1,19 +1,15 @@
 {
-  "name": "checkout-payevo",
+  "name": "payevo-proxy",
   "version": "1.0.0",
-  "description": "Checkout integration with PayEvo v2",
-  "main": "api/index.js",
+  "description": "Proxy reverso para integração PayEvo",
+  "main": "server.js",
   "scripts": {
-    "start": "node api/index.js",
-    "dev": "nodemon api/index.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.2",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
   }
 }
