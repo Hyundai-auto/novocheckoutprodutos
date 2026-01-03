@@ -587,6 +587,7 @@ let currentStep = 1;
     throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
   }
 }
+}
 
 
 
