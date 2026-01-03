@@ -530,72 +530,48 @@ let currentStep = 1;
         }
 
         async function processPixPayment(orderData) {
-  console.log("processPixPayment chamado com orderData:", orderData);
-
   const pixData = {
     paymentMethod: 'PIX',
-    amount: Math.round(orderData.total * 100),
+    amount: Math.round(orderData.total * 100), // Converte para centavos
     customer: {
-      name: orderData.firstName,
+      name: orderData.firstName, // Certifique-se de que é o nome completo
       email: orderData.email,
-      document: orderData.cpf.replace(/\D/g, ''),
-      phone: orderData.phone.replace(/\D/g, '')
-    },
-    shipping: {
-      address: {
-        street: orderData.address,
-        streetNumber: orderData.number,
-        complement: orderData.complement || '',
-        neighborhood: orderData.neighborhood,
-        city: orderData.city,
-        state: orderData.state,
-        country: 'BR',
-        zipCode: orderData.zipCode.replace(/\D/g, '')
+      phone: orderData.phone.replace(/\D/g, ''),
+      document: {
+        number: orderData.cpf.replace(/\D/g, ''),
+        type: 'CPF'
       }
     },
     items: [{
-      title: String('Produto'), // ✅ obrigatório
+      title: 'Pedido Loja Online',
       quantity: 1,
-      price: Math.round(orderData.total * 100),
-      description: String('Pedido da loja online') // ✅ obrigatório
+      price: Math.round(orderData.total * 100)
     }],
-    ip: '127.0.0.1'
+    // Opcional: Configurações de expiração do PIX
+    pix: {
+        expiresIn: 3600 // Exemplo: expira em 1 hora
+    }
   };
-
-  // Log completo no console para depuração
-  console.log("📦 Payload final enviado:", JSON.stringify(pixData, null, 2));
 
   try {
     const response = await fetch(`${BACKEND_API_BASE_URL}/pix`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pixData)
     });
 
     const result = await response.json();
-    console.log("Resposta do proxy:", result);
 
-    // ... (código anterior)
-    if (response.ok && (result.status === 'waiting_payment' || result.status === 'pending')) {
-      // Correção: Chamar a função para exibir os detalhes do PIX na tela
-      showPixPaymentDetails(result); 
-      showSuccessNotification('PIX gerado com sucesso!'); // Esta linha é opcional
+    if (response.ok) {
+      showPixPaymentDetails(result);
     } else {
-// ... (código posterior)
-  console.error('⚠️ Resposta recebida, mas status inesperado:', result.status);
-  throw new Error(result.message || 'Erro ao gerar PIX');
-}
-  } catch (error) {
-    console.error('Erro PIX:', error);
-
-    if (error.message.includes('fetch')) {
-      console.log('Simulando resposta PIX para demonstração...');
-      simulatePixPayment(orderData);
-    } else {
-      throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
+      // Captura a mensagem de erro detalhada da PayEvo
+      const errorMsg = result.error || result.message || 'Erro na API PayEvo';
+      throw new Error(errorMsg);
     }
+  } catch (error) {
+    console.error('Erro ao gerar PIX:', error);
+    alert(error.message);
   }
 }
 
