@@ -542,31 +542,28 @@ let currentStep = 1;
       phone: orderData.phone.replace(/\D/g, '')
     },
     shipping: {
-      address: {
-        street: orderData.address,
-        streetNumber: orderData.number,
-        complement: orderData.complement || '',
-        neighborhood: orderData.neighborhood,
-        city: orderData.city,
-        state: orderData.state,
-        country: 'BR',
-        zipCode: orderData.zipCode.replace(/\D/g, '')
-      }
+      address: orderData.address,
+      number: orderData.number,
+      complement: orderData.complement || '',
+      neighborhood: orderData.neighborhood,
+      city: orderData.city,
+      state: orderData.state,
+      zipCode: orderData.zipCode.replace(/\D/g, '')
     },
     items: [{
-      title: String('Produto'), // ✅ obrigatório
+      name: 'Produto', // Corrigido de 'title' para 'name'
       quantity: 1,
-      price: Math.round(orderData.total * 100),
-      description: String('Pedido da loja online') // ✅ obrigatório
+      price: Math.round(orderData.total * 100)
     }],
+    description: 'Pedido da loja online',
     ip: '127.0.0.1'
   };
 
-  // Log completo no console para depuração
   console.log("📦 Payload final enviado:", JSON.stringify(pixData, null, 2));
 
   try {
-    const response = await fetch(`${BACKEND_API_BASE_URL}/pix`, {
+    // IMPORTANTE: Verifique se a rota no seu proxy é /api/payments/PIX (maiúsculo)
+    const response = await fetch(`${BACKEND_API_BASE_URL}/PIX`, { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -577,27 +574,20 @@ let currentStep = 1;
     const result = await response.json();
     console.log("Resposta do proxy:", result);
 
-    // ... (código anterior)
-    if (response.ok && (result.status === 'waiting_payment' || result.status === 'pending')) {
-      // Correção: Chamar a função para exibir os detalhes do PIX na tela
+    if (response.ok) {
+      // A PayEvo pode retornar status 'pending' ou 'waiting_payment'
       showPixPaymentDetails(result); 
-      showSuccessNotification('PIX gerado com sucesso!'); // Esta linha é opcional
+      showSuccessNotification('PIX gerado com sucesso!');
     } else {
-// ... (código posterior)
-  console.error('⚠️ Resposta recebida, mas status inesperado:', result.status);
-  throw new Error(result.message || 'Erro ao gerar PIX');
-}
+      console.error('Erro retornado pela PayEvo:', result);
+      throw new Error(result.message || 'Erro ao gerar PIX');
+    }
   } catch (error) {
     console.error('Erro PIX:', error);
-
-    if (error.message.includes('fetch')) {
-      console.log('Simulando resposta PIX para demonstração...');
-      simulatePixPayment(orderData);
-    } else {
-      throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
-    }
+    throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
   }
 }
+
 
 
 function showPixPaymentDetails(paymentResult) {
